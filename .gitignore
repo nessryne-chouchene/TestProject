@@ -1,9 +1,21 @@
-# Environnement virtuel
-.venv/
-
-# Fichiers Python compilés
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
 
-# Fichiers temporaires ou logs
-*.log
+# PyCharm
+.idea/
+
+# Reports
+reports/*.html
+reports/*.xml
+screenshots/*.png
+
+# OS
+.DS_Store
+Thumbs.db
