@@ -8,6 +8,7 @@ from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 from config.config import Config
 from faker import Faker
 import time
@@ -33,15 +34,18 @@ def get_driver(browser="chrome", headless=False, resolution=None):
     if browser.lower() == "chrome":
         options = webdriver.ChromeOptions()
         if headless:
-            options.add_argument("--headless")
+            options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
         options.add_argument("--disable-notifications")
-        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
+        options.add_experimental_option('useAutomationExtension', False)
         
+        # Fix for win64 architecture
         driver = webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager().install()),
+            service=ChromeService(ChromeDriverManager(driver_version="143.0.7499.42").install()),
             options=options
         )
     
@@ -149,7 +153,7 @@ class BoundaryValues:
     def get_email_boundaries():
         """Get boundary test cases for email"""
         return {
-            "valid_min": "a@b.co",  # Minimum valid email
+            "valid_min": "a@b.co",
             "valid_normal": "test@example.com",
             "valid_long": "a" * 50 + "@example.com",
             "invalid_no_at": "testexample.com",
@@ -163,10 +167,10 @@ class BoundaryValues:
     def get_password_boundaries():
         """Get boundary test cases for password"""
         return {
-            "valid_min": "Pass1!",  # 6 chars
+            "valid_min": "Pass1!",
             "valid_normal": "Password123!",
             "valid_long": "P" + "a" * 50 + "1!",
-            "invalid_too_short": "Pa1!",  # Less than 6
+            "invalid_too_short": "Pa1!",
             "invalid_no_number": "Password!",
             "invalid_no_special": "Password123",
             "invalid_no_upper": "password123!",
