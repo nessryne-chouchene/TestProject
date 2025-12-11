@@ -8,10 +8,11 @@ from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+from webdriver_manager.core.os_manager import ChromeType
 from config.config import Config
 from faker import Faker
 import time
+import platform
 
 
 fake = Faker()
@@ -43,11 +44,54 @@ def get_driver(browser="chrome", headless=False, resolution=None):
         options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         
-        # Fix for win64 architecture
-        driver = webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager(driver_version="143.0.7499.42").install()),
-            options=options
-        )
+        # Create ChromeDriverManager with correct architecture
+        chrome_driver_manager = ChromeDriverManager()
+        
+        # Force download of win64 version
+        if platform.system() == 'Windows' and platform.machine().endswith('64'):
+            import os
+            import zipfile
+            import requests
+            from pathlib import Path
+            
+            # Get Chrome version
+            version = "143.0.7499.42"
+            
+            # Download URL for win64
+            download_url = f"https://storage.googleapis.com/chrome-for-testing-public/{version}/win64/chromedriver-win64.zip"
+            
+            # Cache directory
+            cache_dir = Path.home() / ".wdm" / "drivers" / "chromedriver" / "win64" / version
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            
+            chromedriver_path = cache_dir / "chromedriver-win64" / "chromedriver.exe"
+            
+            # Download if not exists
+            if not chromedriver_path.exists():
+                print(f"Downloading ChromeDriver {version} for win64...")
+                response = requests.get(download_url)
+                zip_path = cache_dir / "chromedriver.zip"
+                
+                with open(zip_path, 'wb') as f:
+                    f.write(response.content)
+                
+                # Extract
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(cache_dir)
+                
+                os.remove(zip_path)
+                print(f"ChromeDriver installed at: {chromedriver_path}")
+            
+            driver = webdriver.Chrome(
+                service=ChromeService(str(chromedriver_path)),
+                options=options
+            )
+        else:
+            # Fallback for other systems
+            driver = webdriver.Chrome(
+                service=ChromeService(ChromeDriverManager().install()),
+                options=options
+            )
     
     elif browser.lower() == "firefox":
         options = webdriver.FirefoxOptions()
