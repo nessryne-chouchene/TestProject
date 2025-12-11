@@ -8,7 +8,6 @@ from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from webdriver_manager.core.os_manager import ChromeType
 from config.config import Config
 from faker import Faker
 import time
@@ -34,39 +33,38 @@ def get_driver(browser="chrome", headless=False, resolution=None):
     
     if browser.lower() == "chrome":
         options = webdriver.ChromeOptions()
+        
+        # Essential options only - more stable
         if headless:
             options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-notifications")
+        
+        # Basic stability options
+        options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         
-        # Create ChromeDriverManager with correct architecture
-        chrome_driver_manager = ChromeDriverManager()
+        # Disable unnecessary features for stability
+        prefs = {
+            "profile.default_content_setting_values.notifications": 2,
+            "credentials_enable_service": False,
+            "profile.password_manager_enabled": False
+        }
+        options.add_experimental_option("prefs", prefs)
         
-        # Force download of win64 version
+        # Windows 64-bit manual driver setup
         if platform.system() == 'Windows' and platform.machine().endswith('64'):
             import os
             import zipfile
             import requests
             from pathlib import Path
             
-            # Get Chrome version
             version = "143.0.7499.42"
-            
-            # Download URL for win64
             download_url = f"https://storage.googleapis.com/chrome-for-testing-public/{version}/win64/chromedriver-win64.zip"
-            
-            # Cache directory
             cache_dir = Path.home() / ".wdm" / "drivers" / "chromedriver" / "win64" / version
             cache_dir.mkdir(parents=True, exist_ok=True)
-            
             chromedriver_path = cache_dir / "chromedriver-win64" / "chromedriver.exe"
             
-            # Download if not exists
             if not chromedriver_path.exists():
                 print(f"Downloading ChromeDriver {version} for win64...")
                 response = requests.get(download_url)
@@ -75,7 +73,6 @@ def get_driver(browser="chrome", headless=False, resolution=None):
                 with open(zip_path, 'wb') as f:
                     f.write(response.content)
                 
-                # Extract
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     zip_ref.extractall(cache_dir)
                 
@@ -87,7 +84,6 @@ def get_driver(browser="chrome", headless=False, resolution=None):
                 options=options
             )
         else:
-            # Fallback for other systems
             driver = webdriver.Chrome(
                 service=ChromeService(ChromeDriverManager().install()),
                 options=options
@@ -118,7 +114,7 @@ def get_driver(browser="chrome", headless=False, resolution=None):
     # Set window size
     if resolution:
         driver.set_window_size(resolution[0], resolution[1])
-    else:
+    elif not headless:
         driver.maximize_window()
     
     # Set timeouts

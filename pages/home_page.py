@@ -8,7 +8,7 @@ import time
 
 
 class HomePage(BasePage):
-    # Locators - Updated for current Juice Shop version
+    # Locators
     ACCOUNT_BUTTON = (By.ID, "navbarAccount")
     LOGIN_BUTTON = (By.ID, "navbarLoginButton")
     SEARCH_BUTTON = (By.ID, "searchQuery")
@@ -16,9 +16,6 @@ class HomePage(BasePage):
     PRODUCTS_GRID = (By.CSS_SELECTOR, ".mat-grid-list")
     PRODUCT_CARDS = (By.CSS_SELECTOR, "mat-card.mat-card")
     CART_BUTTON = (By.CSS_SELECTOR, "button[aria-label*='shopping cart'], button[aria-label*='cart']")
-    COOKIE_DISMISS = (By.CSS_SELECTOR, "button[aria-label*='dismiss'], a.cc-btn")
-    WELCOME_BANNER_DISMISS = (By.CSS_SELECTOR, "button[aria-label*='Close'], button[mat-dialog-close]")
-    # Try multiple logo selectors
     LOGO = (By.CSS_SELECTOR, "img[alt*='OWASP'], img[src*='logo'], img[src*='juice'], .navbar-brand img")
     SIDE_MENU_BUTTON = (By.CSS_SELECTOR, "button[aria-label*='menu'], button[aria-label*='sidenav']")
     
@@ -28,29 +25,7 @@ class HomePage(BasePage):
     def open(self):
         """Open home page"""
         self.navigate_to("https://demo.owasp-juice.shop/#/")
-        time.sleep(3)  # Wait for Angular to load
-        self.dismiss_initial_popups()
-    
-    def dismiss_initial_popups(self):
-        """Dismiss welcome banner and cookie consent"""
-        try:
-            # Wait a bit for popups to appear
-            time.sleep(2)
-            
-            # Try to dismiss welcome banner
-            if self.is_element_visible(self.WELCOME_BANNER_DISMISS, timeout=3):
-                self.click(self.WELCOME_BANNER_DISMISS)
-                time.sleep(0.5)
-        except:
-            pass
-        
-        try:
-            # Try to dismiss cookie banner
-            if self.is_element_visible(self.COOKIE_DISMISS, timeout=3):
-                self.click(self.COOKIE_DISMISS)
-                time.sleep(0.5)
-        except:
-            pass
+        time.sleep(5)  # Wait for Angular app to load
     
     def click_account(self):
         """Click account button"""
@@ -71,11 +46,11 @@ class HomePage(BasePage):
         self.type_text(self.SEARCH_BUTTON, product_name)
         element = self.find_element(self.SEARCH_BUTTON)
         element.send_keys(Keys.RETURN)
-        time.sleep(1)
+        time.sleep(2)
     
     def get_product_count(self):
         """Get number of products displayed"""
-        time.sleep(2)  # Wait for products to load
+        time.sleep(2)
         products = self.find_elements(self.PRODUCT_CARDS)
         return len(products)
     
@@ -92,27 +67,5 @@ class HomePage(BasePage):
         self.click(self.SIDE_MENU_BUTTON)
     
     def is_logo_visible(self):
-        """Check if logo is visible - try multiple approaches"""
-        # Approach 1: Try the specific logo selector
-        try:
-            if self.is_element_visible(self.LOGO, timeout=5):
-                return True
-        except:
-            pass
-        
-        # Approach 2: Check if we're on the home page (products visible)
-        try:
-            if self.is_element_visible(self.PRODUCTS_GRID, timeout=10):
-                return True
-        except:
-            pass
-        
-        # Approach 3: Check for any navbar element
-        try:
-            navbar = (By.CSS_SELECTOR, "mat-toolbar, nav, .navbar")
-            if self.is_element_visible(navbar, timeout=5):
-                return True
-        except:
-            pass
-        
-        return False
+        """Check if page loaded by checking for products grid"""
+        return self.is_element_visible(self.PRODUCTS_GRID, timeout=15)
