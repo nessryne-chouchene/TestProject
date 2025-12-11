@@ -9,35 +9,32 @@ import time
 
 class HomePage(BasePage):
     # Locators
-    ACCOUNT_BUTTON = (By.ID, "navbarAccount")
+    ACCOUNT_BUTTON = (By.XPATH, "//button[@id='navbarAccount'] | //span[contains(text(), 'Account')]")
     LOGIN_BUTTON = (By.ID, "navbarLoginButton")
     SEARCH_BUTTON = (By.ID, "searchQuery")
-    SEARCH_ICON = (By.CSS_SELECTOR, "mat-icon[class*='search']")
+    SEARCH_ICON = (By.CSS_SELECTOR, "button[aria-label='Open search'] mat-icon, mat-icon[role='img']")
     PRODUCTS_GRID = (By.CSS_SELECTOR, ".mat-grid-list")
     PRODUCT_CARDS = (By.CSS_SELECTOR, "mat-card.mat-card")
-    CART_BUTTON = (By.CSS_SELECTOR, "button[aria-label*='shopping cart'], button[aria-label*='cart']")
-    LOGO = (By.CSS_SELECTOR, "img[alt*='OWASP'], img[src*='logo'], img[src*='juice'], .navbar-brand img")
-    SIDE_MENU_BUTTON = (By.CSS_SELECTOR, "button[aria-label*='menu'], button[aria-label*='sidenav']")
-    
+    CART_BUTTON = (By.CSS_SELECTOR, "button[aria-label*='Show shopping cart'], button[aria-label*='cart']")
+    SIDE_MENU_BUTTON = (By.CSS_SELECTOR, "button[aria-label*='Open side navigation']")
+
     def __init__(self, driver):
         super().__init__(driver)
 
-	
-	def open(self):
-    	"""Open home page and handle cookie banner"""
-    	self.navigate_to("https://demo.owasp-juice.shop/#/")
-    	self.dismiss_cookie_banner()   # Nouvelle ligne magique
-    	time.sleep(4)  # Attendre le chargement complet des produits (Angular)
-	
-    
+    def open(self):
+        """Open home page and handle cookie banner"""
+        self.navigate_to("https://demo.owasp-juice.shop/#/")
+        self.dismiss_cookie_banner()
+        time.sleep(4)  # Attendre le chargement complet des produits (Angular)
+
     def click_account(self):
         """Click account button"""
         self.click(self.ACCOUNT_BUTTON)
-    
+
     def click_login(self):
         """Click login button"""
         self.click(self.LOGIN_BUTTON)
-    
+
     def search_product(self, product_name):
         """Search for a product"""
         try:
@@ -45,30 +42,29 @@ class HomePage(BasePage):
             time.sleep(0.5)
         except:
             pass
-        
         self.type_text(self.SEARCH_BUTTON, product_name)
         element = self.find_element(self.SEARCH_BUTTON)
         element.send_keys(Keys.RETURN)
         time.sleep(2)
-    
+
     def get_product_count(self):
         """Get number of products displayed"""
         time.sleep(2)
         products = self.find_elements(self.PRODUCT_CARDS)
         return len(products)
-    
+
     def is_products_grid_visible(self):
         """Check if products grid is visible"""
         return self.is_element_visible(self.PRODUCTS_GRID, timeout=10)
-    
+
+    def is_logo_visible(self):
+        """Check if page is loaded by looking for products grid"""
+        return self.is_element_visible(self.PRODUCTS_GRID, timeout=15)
+
     def click_cart(self):
         """Click shopping cart button"""
         self.click(self.CART_BUTTON)
-    
+
     def click_side_menu(self):
         """Click side menu button"""
         self.click(self.SIDE_MENU_BUTTON)
-    
-    def is_logo_visible(self):
-        """Check if page is loaded by looking for products grid"""
-    	return self.is_element_visible(self.PRODUCTS_GRID, timeout=15)
