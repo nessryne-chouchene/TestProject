@@ -21,11 +21,14 @@ class HomePage(BasePage):
     
     def __init__(self, driver):
         super().__init__(driver)
-    
-    def open(self):
-        """Open home page"""
-        self.navigate_to("https://demo.owasp-juice.shop/#/")
-        time.sleep(5)  # Wait for Angular app to load
+
+	
+	def open(self):
+    	"""Open home page and handle cookie banner"""
+    	self.navigate_to("https://demo.owasp-juice.shop/#/")
+    	self.dismiss_cookie_banner()   # Nouvelle ligne magique
+    	time.sleep(4)  # Attendre le chargement complet des produits (Angular)
+	
     
     def click_account(self):
         """Click account button"""
@@ -67,5 +70,5 @@ class HomePage(BasePage):
         self.click(self.SIDE_MENU_BUTTON)
     
     def is_logo_visible(self):
-        """Check if page loaded by checking for products grid"""
-        return self.is_element_visible(self.PRODUCTS_GRID, timeout=15)
+        """Check if page is loaded by looking for products grid"""
+    	return self.is_element_visible(self.PRODUCTS_GRID, timeout=15)
