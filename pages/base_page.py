@@ -8,7 +8,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import time
 import os
 from config.config import Config
-
+from selenium.webdriver.common.by import By
 
 class BasePage:
     def __init__(self, driver):
