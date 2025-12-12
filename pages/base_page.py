@@ -105,33 +105,33 @@ class BasePage:
         load_complete = self.driver.execute_script("return window.performance.timing.loadEventEnd")
         return (load_complete - navigation_start) / 1000.0  # Convert to seconds
     def dismiss_cookie_banner(self):
-    """Dismiss cookie consent banner if present - Updated 2025 version"""
-    from selenium.webdriver.common.by import By
-    import time
+        """Dismiss cookie consent banner if present - Updated 2025 version"""
+        from selenium.webdriver.common.by import By
+        import time
 
-    try:
-        # Sélecteur principal 2025 : bouton "Accept All" ou "Dismiss"
-        accept_btn = (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'dismiss')]")
-        
-        # Sélecteur alternatif : croix de fermeture du welcome banner
-        close_btn = (By.CSS_SELECTOR, "button.close-dialog, button[aria-label*='Close'], mat-icon[svgicon='times']")
+        try:
+            # Sélecteur principal 2025 : bouton "Accept All" ou "Dismiss"
+            accept_btn = (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'dismiss')]")
 
-        # Essai 1 : Accept All / Dismiss
-        if self.is_element_visible(accept_btn, timeout=6):
-            self.click(accept_btn)
-            time.sleep(1)
-            print("Cookie banner dismissed (Accept/Dismiss button)")
-            return True
+            # Sélecteur alternatif : croix de fermeture du welcome banner
+            close_btn = (By.CSS_SELECTOR, "button.close-dialog, button[aria-label*='Close'], mat-icon[svgicon='times']")
 
-        # Essai 2 : Croix de fermeture
-        if self.is_element_visible(close_btn, timeout=6):
-            self.click(close_btn)
-            time.sleep(1)
-            print("Cookie banner dismissed (Close button)")
-            return True
+            # Essai 1 : Accept All / Dismiss
+            if self.is_element_visible(accept_btn, timeout=6):
+                self.click(accept_btn)
+                time.sleep(1)
+                print("Cookie banner dismissed (Accept/Dismiss button)")
+                return True
 
-    except Exception as e:
-        print(f"Cookie banner not found or already closed: {e}")
+            # Essai 2 : Croix de fermeture
+            if self.is_element_visible(close_btn, timeout=6):
+                self.click(close_btn)
+                time.sleep(1)
+                print("Cookie banner dismissed (Close button)")
+                return True
 
-    return False
+        except Exception as e:
+            print(f"Cookie banner not found or already closed: {e}")
+
+        return False
     
