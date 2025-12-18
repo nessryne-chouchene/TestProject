@@ -1,5 +1,5 @@
 """
-Configuration file for test settings - OPTIMIZED
+Configuration file for test settings
 """
 import os
 
@@ -8,14 +8,14 @@ class Config:
     BASE_URL = "https://demo.owasp-juice.shop/#/"
     
     # Browser settings
-    BROWSERS = ["chrome"]  # Only Chrome (Firefox/Edge not installed)
+    BROWSERS = ["chrome", "firefox", "edge"]
     DEFAULT_BROWSER = "chrome"
     HEADLESS = False
     
-    # Timeouts - INCREASED for stability (FIX BUG #2, #3)
-    IMPLICIT_WAIT = 15  # Increased from 10
-    EXPLICIT_WAIT = 30  # Increased from 20
-    PAGE_LOAD_TIMEOUT = 45  # Increased from 30
+    # Timeouts
+    IMPLICIT_WAIT = 10
+    EXPLICIT_WAIT = 20
+    PAGE_LOAD_TIMEOUT = 30
     
     # Screen resolutions for responsive testing
     RESOLUTIONS = {
@@ -25,9 +25,9 @@ class Config:
         "wide": (2560, 1440)       # 2K
     }
     
-    # Performance thresholds (in seconds) - RELAXED (FIX BUG #2)
-    MAX_PAGE_LOAD_TIME = 8  # Increased from 5 (realistic for demo site)
-    MAX_ELEMENT_LOAD_TIME = 5  # Increased from 3
+    # Performance thresholds (in seconds)
+    MAX_PAGE_LOAD_TIME = 5
+    MAX_ELEMENT_LOAD_TIME = 3
     
     # Test data
     VALID_EMAIL = "test@juice-sh.op"
@@ -37,14 +37,7 @@ class Config:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     REPORTS_DIR = os.path.join(BASE_DIR, "reports")
     SCREENSHOTS_DIR = os.path.join(BASE_DIR, "screenshots")
-    BUGS_DIR = os.path.join(BASE_DIR, "bug_reports")  # NEW: For bug reports
     
     # Create directories if they don't exist
     os.makedirs(REPORTS_DIR, exist_ok=True)
     os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
-    os.makedirs(BUGS_DIR, exist_ok=True)  # NEW
-    
-    # Bug reporting settings - NEW
-    AUTO_SCREENSHOT_ON_FAIL = True
-    GENERATE_BUG_REPORT = True
-    BUG_REPORT_FORMAT = "markdown"  # or "html", "json"
